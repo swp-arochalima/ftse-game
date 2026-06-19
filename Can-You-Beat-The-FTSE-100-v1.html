@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Can You Beat The FTSE 100? | Strategic Wealth Partners</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 108.33%; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f7f5f2;
+      color: #30415d;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    /* ── START SCREEN ─────────────────────────────────── */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 0 8px;
+    }
+
+    #start-screen h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.15;
+      color: #30415d;
+      margin-bottom: 20px;
+    }
+
+    #start-screen .lead {
+      max-width: 560px;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #4a4a4a;
+      margin-bottom: 28px;
+    }
+
+    .rules-box {
+      max-width: 520px;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-radius: 10px;
+      padding: 22px 26px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .rules-box p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #4a4a4a;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .rules-box p:last-child { border-bottom: none; }
+
+    .rules-box strong { color: #30415d; }
+
+    .btn-start {
+      background: #e93a55;
+      color: #fff;
+      border: none;
+      padding: 16px 72px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s;
+      margin-bottom: 20px;
+    }
+
+    .btn-start:hover { background: #c92e44; }
+    .btn-start:active { transform: scale(0.98); }
+
+    /* ── GAME SCREEN ──────────────────────────────────── */
+    #game-screen { display: none; }
+
+    .game-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .game-top h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: #30415d;
+    }
+
+    #game-period {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #30415d;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .chart-box {
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-radius: 10px;
+      padding: 16px 14px 10px 12px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .pos-pill {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .pos-pill.in  { background: #fde8eb; color: #c92e44; }
+    .pos-pill.out { background: #e7ecf5; color: #30415d; }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .score-card {
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+
+    .score-card.you { border-top: 3px solid #30415d; }
+    .score-card.bah { border-top: 3px solid #88a4ca; }
+
+    .score-lbl {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #5f6b7a;
+      margin-bottom: 6px;
+    }
+
+    .score-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.57rem;
+      color: #30415d;
+    }
+
+    .score-delta {
+      font-size: 0.84rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .delta-pos { color: #1a6640; }
+    .delta-neg { color: #c92e44; }
+    .delta-neu { color: #5f6b7a; }
+
+    /* ── RESULTS SCREEN ───────────────────────────────── */
+    #results-screen { display: none; }
+
+    .result-banner {
+      border-radius: 8px;
+      padding: 16px 22px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .result-banner.win  { background: #d9f0e3; border: 1px solid #b2dfcc; }
+    .result-banner.lose { background: #fde8eb; border: 1px solid #f5c2c7; }
+    .result-banner.tie  { background: #eef1f6; border: 1px solid #d6deea; }
+
+    .result-banner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .result-banner.win  h2 { color: #1a6640; }
+    .result-banner.lose h2 { color: #7a1c28; }
+    .result-banner.tie  h2 { color: #30415d; }
+
+    .result-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-top: 6px;
+      opacity: 0.85;
+      color: #30415d;
+    }
+
+    .result-stats {
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+
+    .result-stats p {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .result-stats p:last-child { margin-bottom: 0; }
+    .result-stats strong { color: #30415d; }
+
+    /* ── DECISION REPORT CARD ─────────────────────────── */
+    .report {
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+    .report h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: #30415d;
+      margin-bottom: 4px;
+    }
+    .report-lead {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: #5f6b7a;
+      margin-bottom: 14px;
+    }
+    .report-row {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .report-row:last-child { border-bottom: none; }
+    .report-when {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #30415d;
+      letter-spacing: 0.2px;
+    }
+    .report-when .rdate { font-weight: 500; color: #5f6b7a; }
+    .report-line {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: #444;
+      margin-top: 3px;
+    }
+    .report-verdict { font-weight: 700; }
+    .report-verdict.good    { color: #1a6640; }
+    .report-verdict.bad     { color: #c92e44; }
+    .report-verdict.neutral { color: #5f6b7a; }
+    .report-link {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #c92e44;
+      text-decoration: none;
+      margin-top: 5px;
+    }
+    .report-link:hover { text-decoration: underline; }
+
+    .btn-again {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: #30415d;
+      color: #fff;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+
+    .btn-again:hover { background: #253350; }
+
+    /* ── DISCLAIMER ───────────────────────────────────── */
+    .disclaimer {
+      font-size: 0.72rem;
+      color: #5f6b7a;
+      line-height: 1.65;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Persistent regulatory footer — visible on every screen */
+    .reg-footer {
+      font-size: 0.72rem;
+      color: #5f6b7a;
+      line-height: 1.65;
+      text-align: center;
+      border-top: 1px solid #e2e7ee;
+      padding-top: 14px;
+      margin-top: 22px;
+    }
+
+    /* ── LEGEND ───────────────────────────────────────── */
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #666;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+
+    .legend-dot { width: 12px; height: 3px; border-radius: 2px; }
+
+    /* ── BREAKING-NEWS CARD ───────────────── */
+    .news-card {
+      display: none;
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 12px;
+      background: #fff;
+      border: 1px solid #dde5ef;
+      border-left: 4px solid #c92e44;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 24px rgba(20, 30, 50, 0.18);
+      z-index: 5;
+    }
+    .news-card.show { display: block; }
+
+    .news-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .news-flag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #fff;
+      background: #c92e44;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+    .news-when {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #5f6b7a;
+    }
+    .news-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: #30415d;
+      margin-bottom: 10px;
+    }
+    .news-decide {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .news-btn {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 13px 8px;
+      min-height: 46px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .news-btn:active { transform: scale(0.98); }
+    .news-btn.act-sell { background: #e93a55; color: #fff; }
+    .news-btn.act-sell:hover { background: #c92e44; }
+    .news-btn.act-buy { background: #30415d; color: #fff; }
+    .news-btn.act-buy:hover { background: #253350; }
+    .news-btn.hold {
+      background: #fff;
+      color: #30415d;
+      border: 1.5px solid #c2cde0;
+    }
+    .news-btn.hold:hover { background: #eef1f7; }
+    .news-btn:focus-visible { outline: 2px solid #30415d; outline-offset: 2px; }
+    .news-link {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #c92e44;
+      text-decoration: none;
+    }
+    .news-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════════════════════ START SCREEN ══ -->
+  <div id="start-screen">
+    <h1>Can You Beat<br>The FTSE&nbsp;100?</h1>
+    <p class="lead">
+      Is now a good time to buy? Are markets about to turn?
+    </p>
+    <p class="lead">
+      Tap <strong>Start</strong> and you'll be dropped into a random 10-year stretch of <strong>real FTSE&nbsp;100 history</strong>, but you won't know which one. When big news breaks, you decide: sell and move to cash, buy back in, or hold your nerve. Try to beat a simple buy-and-hold investor who never touches their portfolio.
+    </p>
+
+    <div class="rules-box">
+      <p>📊 <strong>Data:</strong> Real monthly FTSE&nbsp;100 returns from April 2000 to May 2026, covering the UK's 100 largest listed companies, with dividends reinvested.</p>
+      <p>💰 <strong>Starting amount:</strong> £10,000.</p>
+      <p>📈 <strong>When invested:</strong> your pot rises and falls with the market each month.</p>
+      <p>🏦 <strong>When you sell:</strong> your cash earns 1% a year (a deliberately cautious assumption) while it sits on the sidelines.</p>
+      <p>🎯 <strong>Goal:</strong> beat the buy-and-hold investor over 10 years.</p>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Start</button>
+  </div>
+
+  <!-- ═══════════════════════════════ GAME SCREEN ═══ -->
+  <div id="game-screen">
+    <div class="game-top">
+      <h2>Can You Beat The FTSE&nbsp;100?</h2>
+      <span id="game-period">Year 1 of 10</span>
+    </div>
+
+    <div class="chart-box">
+      <canvas id="game-canvas" height="380" role="img" aria-label="Live chart of your portfolio value as a percentage gain over a 10-year period. Your current value and the buy-and-hold value are shown in the cards below."></canvas>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#30415d"></div>You</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#88a4ca"></div>Buy &amp; Hold</div>
+      </div>
+      <div id="news-card" class="news-card" role="alertdialog" aria-live="assertive" aria-labelledby="news-text">
+        <div class="news-head"><span class="news-flag">BBC News</span><span id="news-when" class="news-when"></span></div>
+        <p id="news-text" class="news-text"></p>
+        <div class="news-decide">
+          <button type="button" class="news-btn act-sell" id="news-action-btn" onclick="newsDecision('act')">Sell, move to cash</button>
+          <button type="button" class="news-btn hold" id="news-hold-btn" onclick="newsDecision('hold')">Stay invested</button>
+        </div>
+        <a id="news-link" class="news-link" href="#" target="_blank" rel="noopener noreferrer">Read on BBC →</a>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-bottom:16px;">
+      <span class="pos-pill in" id="pos-pill">● Invested</span>
+    </div>
+
+    <div class="score-row">
+      <div class="score-card you">
+        <div class="score-lbl">Your Investment</div>
+        <div class="score-val" id="p-val">£10,000</div>
+        <div class="score-delta delta-neu" id="p-delta">—</div>
+      </div>
+      <div class="score-card bah">
+        <div class="score-lbl">Buy &amp; Hold</div>
+        <div class="score-val" id="h-val">£10,000</div>
+        <div class="score-delta delta-neu" id="h-delta">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════ RESULTS SCREEN ═ -->
+  <div id="results-screen">
+    <div class="result-banner" id="r-banner">
+      <h2 id="r-verdict"></h2>
+    </div>
+
+    <div class="chart-box">
+      <canvas id="results-canvas" height="380" role="img" aria-label="Chart comparing your strategy (solid navy) against a buy-and-hold strategy (lighter blue, dashed) over the 10-year period. The figures are summarised in the text below."></canvas>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#30415d"></div>You</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#88a4ca"></div>Buy &amp; Hold</div>
+      </div>
+    </div>
+
+    <div class="result-stats" id="r-stats"></div>
+
+    <div class="report" id="r-report"></div>
+
+    <button class="btn-again" onclick="playAgain()">Play Again</button>
+  </div>
+
+  <footer class="reg-footer">
+    For educational purposes only. Not financial advice. Past performance is not a guide to future results.
+  </footer>
+
+</div><!-- /wrap -->
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// 1. DATA — real monthly FTSE 100 total-return index (GBP)
+//    Monthly, 04/2000 to 05/2026, 314 points. Indexed to 10000 at start.
+//    Source: client-supplied FTSE 100 total-return series (dividends reinvested).
+// ─────────────────────────────────────────────────────────────
+const FTSE_DATES = ["04/2000","05/2000","06/2000","07/2000","08/2000","09/2000","10/2000","11/2000","12/2000","01/2001","02/2001","03/2001","04/2001","05/2001","06/2001","07/2001","08/2001","09/2001","10/2001","11/2001","12/2001","01/2002","02/2002","03/2002","04/2002","05/2002","06/2002","07/2002","08/2002","09/2002","10/2002","11/2002","12/2002","01/2003","02/2003","03/2003","04/2003","05/2003","06/2003","07/2003","08/2003","09/2003","10/2003","11/2003","12/2003","01/2004","02/2004","03/2004","04/2004","05/2004","06/2004","07/2004","08/2004","09/2004","10/2004","11/2004","12/2004","01/2005","02/2005","03/2005","04/2005","05/2005","06/2005","07/2005","08/2005","09/2005","10/2005","11/2005","12/2005","01/2006","02/2006","03/2006","04/2006","05/2006","06/2006","07/2006","08/2006","09/2006","10/2006","11/2006","12/2006","01/2007","02/2007","03/2007","04/2007","05/2007","06/2007","07/2007","08/2007","09/2007","10/2007","11/2007","12/2007","01/2008","02/2008","03/2008","04/2008","05/2008","06/2008","07/2008","08/2008","09/2008","10/2008","11/2008","12/2008","01/2009","02/2009","03/2009","04/2009","05/2009","06/2009","07/2009","08/2009","09/2009","10/2009","11/2009","12/2009","01/2010","02/2010","03/2010","04/2010","05/2010","06/2010","07/2010","08/2010","09/2010","10/2010","11/2010","12/2010","01/2011","02/2011","03/2011","04/2011","05/2011","06/2011","07/2011","08/2011","09/2011","10/2011","11/2011","12/2011","01/2012","02/2012","03/2012","04/2012","05/2012","06/2012","07/2012","08/2012","09/2012","10/2012","11/2012","12/2012","01/2013","02/2013","03/2013","04/2013","05/2013","06/2013","07/2013","08/2013","09/2013","10/2013","11/2013","12/2013","01/2014","02/2014","03/2014","04/2014","05/2014","06/2014","07/2014","08/2014","09/2014","10/2014","11/2014","12/2014","01/2015","02/2015","03/2015","04/2015","05/2015","06/2015","07/2015","08/2015","09/2015","10/2015","11/2015","12/2015","01/2016","02/2016","03/2016","04/2016","05/2016","06/2016","07/2016","08/2016","09/2016","10/2016","11/2016","12/2016","01/2017","02/2017","03/2017","04/2017","05/2017","06/2017","07/2017","08/2017","09/2017","10/2017","11/2017","12/2017","01/2018","02/2018","03/2018","04/2018","05/2018","06/2018","07/2018","08/2018","09/2018","10/2018","11/2018","12/2018","01/2019","02/2019","03/2019","04/2019","05/2019","06/2019","07/2019","08/2019","09/2019","10/2019","11/2019","12/2019","01/2020","02/2020","03/2020","04/2020","05/2020","06/2020","07/2020","08/2020","09/2020","10/2020","11/2020","12/2020","01/2021","02/2021","03/2021","04/2021","05/2021","06/2021","07/2021","08/2021","09/2021","10/2021","11/2021","12/2021","01/2022","02/2022","03/2022","04/2022","05/2022","06/2022","07/2022","08/2022","09/2022","10/2022","11/2022","12/2022","01/2023","02/2023","03/2023","04/2023","05/2023","06/2023","07/2023","08/2023","09/2023","10/2023","11/2023","12/2023","01/2024","02/2024","03/2024","04/2024","05/2024","06/2024","07/2024","08/2024","09/2024","10/2024","11/2024","12/2024","01/2025","02/2025","03/2025","04/2025","05/2025","06/2025","07/2025","08/2025","09/2025","10/2025","11/2025","12/2025","01/2026","02/2026","03/2026","04/2026","05/2026"];
+const FTSE_INDEX = [10000,10553.0678,10486.4912,10582.3153,11143.4508,10525.2702,10773.7819,10292.8138,10445.5378,10575.9004,9970.1146,9535.6087,10128.9515,9857.7815,9607.6884,9419.919,9152.014,8413.6698,8655.4192,8954.4861,8982.3468,8896.044,8822.2567,9167.1052,8668.883,9042.9612,8446.3553,7714.152,7726.7185,6815.8757,7408.1925,7663.8109,7250.4345,6568.5723,6767.3782,6740.8156,7294.2038,7543.3698,7524.321,7769.6399,7833.9203,7716.4526,8095.4494,8225.3549,8461.3037,8302.1253,8521.4892,8390.1315,8555.655,8467.565,8069.2856,8376.2348,8124.6829,8751.3082,8859.3938,9044.3273,9221.7958,8904.746,9563.742,9495.1865,9332.4762,9260.7238,9997.7045,10335.3943,10435.299,10805.0488,10041.867,10753.0881,11089.6138,11372.9634,11469.4839,11901.2651,12008.6081,11453.9978,11704.6504,11477.0083,11939.7212,12064.8482,12413.1238,12301.151,12542.1124,12510.0131,12483.2278,12859.0475,12821.4117,13530.6506,13538.5605,13035.8769,13009.3559,13365.7619,13919.6622,13363.0417,13103.6533,12228.5769,12285.735,11729.5513,12862.6846,12840.2795,11686.0166,11528.578,12089.2786,10534.1989,9422.9265,9292.8623,9391.4325,8794.9098,8180.9523,8425.4942,9140.4968,9568.0868,9240.5985,10032.9224,10752.7817,11264.2615,11076.5313,11458.3856,11957.6715,11468.4481,11900.5453,12673.5476,12417.1962,11658.2397,11073.8759,11857.2902,11843.5939,12597.5192,12902.8908,12608.5252,13467.304,13392.8476,13745.7614,13616.0477,14020.4222,13886.922,13831.091,13536.9019,12640.644,12041.3431,13028.8514,13009.1261,13172.0632,13441.6565,13967.6019,13782.6941,13743.9559,12813.1262,13458.9948,13623.9609,13906.7767,14007.1179,14129.8769,14398.5116,14481.9804,15426.1198,15700.8992,15907.4473,15996.4869,16450.4287,15585.0323,16613.8547,16206.839,16349.992,17058.7589,16916.8179,17182.5196,16588.0929,17423.1618,16964.6333,17488.1219,17727.4213,17506.5258,17486.1538,17845.2335,17349.6481,17177.0466,17707.1449,17306.0021,17806.2605,18397.637,18037.3484,18605.6386,18739.8097,17539.1879,18023.2414,16948.5864,16463.6538,17315.4444,17371.4829,17073.9515,16649.5516,16786.0134,17084.5645,17327.2596,17380.1291,18200.2415,18825.92,19140.0869,19484.3049,19685.1549,19289.4294,20325.0685,20209.214,20833.1956,21065.2461,20784.478,21806.0531,21273.0383,21455.8845,21806.2677,21659.1649,22052.381,21657.723,22746.7969,22300.7388,21542.6706,21103.6204,22545.8955,23176.1887,23121.9951,23472.4427,22699.7161,22968.3625,21853.0833,21502.8786,20751.4106,21505.0136,21996.3151,22718.4008,23245.7467,22578.4486,23473.4277,23997.5046,23019.368,23701.602,23259.2447,23678.5584,24336.8793,23520.1871,21404.6286,18532.4875,19255.0149,19897.44,20227.0638,19377.6498,19716.426,19412.2069,18490.2624,20835.897,21519.8532,21350.053,21686.8836,22586.8093,23511.5717,23764.739,23860.1639,23875.8518,24366.0164,24325.9714,24863.336,24322.7393,25478.8443,25764.3924,25844.526,26209.1481,26406.5883,26704.429,25225.8091,26150.9613,25874.2699,24537.9641,25271.9424,27071.0478,26668.2271,27827.5185,28315.9474,27612.9679,28554.4546,27146.4109,27524.4605,28171.1263,27466.7993,28126.6413,27088.1662,27707.4344,28775.03,28409.1927,28537.3692,29920.2781,30733.8498,31370.2264,31037.6759,31823.0061,32097.9656,31603.6262,31146.2099,31957.1651,31545.7512,33501.0165,34168.5069,33471.8839,33249.8091,34518.9614,34533.3357,36023.4108,36463.8248,37130.7516,38650.7027,38799.2085,39677.1791,40861.4168,43738.5138,41033.4205,41970.7076,42277.1623];
+
+const N_POINTS  = FTSE_INDEX.length;
+const TOTAL_MONTHS = 120;                 // 10 years
+const N_WINDOWS = N_POINTS - TOTAL_MONTHS; // valid 10-year start points
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// "04/2000" -> "Apr 2000"
+function fmtMonthYear(mmYYYY) {
+  const [mm, yyyy] = mmYYYY.split('/');
+  return MONTH_ABBR[parseInt(mm, 10) - 1] + ' ' + yyyy;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 2. GAME STATE
+// ─────────────────────────────────────────────────────────────
+const CASH_RATE_ANNUAL  = 0.01;                            // 1% per year (client assumption)
+const CASH_RATE_MONTHLY = Math.pow(1 + CASH_RATE_ANNUAL, 1/12) - 1;
+
+const TICK_MS = 220;   // fixed pace between news events (ms per month)
+
+let G = {};
+let animTimer = null;
+
+// ─────────────────────────────────────────────────────────────
+// 2b. NEWS EVENTS — real, market-moving moments inside the data window.
+//     Headlines are neutral summaries in our own words; each "Read on BBC"
+//     link runs a BBC News search so the player lands on the BBC's own
+//     coverage of that event. Drop an exact article URL into `url` to refine.
+// ─────────────────────────────────────────────────────────────
+function bbcSearch(q) {
+  return 'https://www.bbc.co.uk/search?q=' + encodeURIComponent(q) + '&d=news_gnl';
+}
+
+const NEWS = {
+  "09/2001": { tag: "9/11 attacks",     text: "Terror attacks in the United States send global stock markets reeling.",                  url: bbcSearch("September 11 attacks 2001 stock markets") },
+  "03/2003": { tag: "Iraq war begins",  text: "War breaks out in Iraq as shares languish near multi-year lows.",                         url: bbcSearch("Iraq war 2003 stock markets FTSE") },
+  "09/2007": { tag: "Northern Rock",    text: "Savers queue outside Northern Rock, the first run on a British bank in over a century.",  url: bbcSearch("Northern Rock bank run 2007") },
+  "09/2008": { tag: "Lehman collapse",  text: "Lehman Brothers collapses, triggering a full-blown global financial crisis.",             url: bbcSearch("Lehman Brothers collapse September 2008") },
+  "03/2009": { tag: "Crisis low",       text: "Shares hit their lowest in years as the financial crisis reaches its darkest point.",      url: bbcSearch("FTSE shares low March 2009 financial crisis") },
+  "08/2011": { tag: "Eurozone crisis",  text: "Markets tumble as the eurozone debt crisis deepens and the US loses its top credit rating.", url: bbcSearch("eurozone debt crisis US credit downgrade August 2011 markets") },
+  "06/2016": { tag: "Brexit vote",      text: "Britain votes to leave the EU and the pound suffers its biggest one-day fall on record.",   url: bbcSearch("Brexit referendum result pound markets June 2016") },
+  "03/2020": { tag: "Covid crash",      text: "A pandemic is declared and the FTSE 100 suffers its worst crash since 1987.",              url: bbcSearch("FTSE 100 coronavirus crash March 2020") },
+  "02/2022": { tag: "Ukraine invasion", text: "Russia invades Ukraine, sending energy prices soaring and rattling markets.",             url: bbcSearch("Russia invasion Ukraine markets February 2022") },
+  "09/2022": { tag: "Mini-budget",      text: "A UK mini-budget sparks a bond-market crisis and drives the pound to a record low.",       url: bbcSearch("UK mini-budget pound record low September 2022") }
+};
+
+function resetGame(startIdx) {
+  if (animTimer) clearInterval(animTimer);
+
+  // Real monthly returns for the chosen 10-year window
+  const monthRets = [];
+  for (let k = 1; k <= TOTAL_MONTHS; k++) {
+    monthRets.push(FTSE_INDEX[startIdx + k] / FTSE_INDEX[startIdx + k - 1] - 1);
+  }
+
+  // Pre-compute the buy & hold % path across the whole 10 years so the chart's
+  // vertical scale can be fixed up-front — this stops the axis from rescaling
+  // (and the lines from jumping) every time the market hits a new high or low.
+  let acc = 1, baseLo = 0, baseHi = 0;
+  for (let k = 0; k < TOTAL_MONTHS; k++) {
+    acc *= (1 + monthRets[k]);
+    const pct = (acc - 1) * 100;
+    if (pct < baseLo) baseLo = pct;
+    if (pct > baseHi) baseHi = pct;
+  }
+
+  G = {
+    startIdx,
+    monthRets,
+    currentMonth : 0,
+    invested     : true,
+    playerVals   : [10000],
+    holdVals     : [10000],
+    markers      : [],   // { month, label, invested }
+    markerIdx    : 0,
+    gameOver     : false,
+    investedHist : [],   // per-month: was the player invested for that month's return?
+    paused       : false
+  };
+  G.baseLo = baseLo;
+  G.baseHi = baseHi;
+}
+
+// Window selection. The dataset spans ~26 years, so 10-year windows overlap a
+// lot and the big crashes (2008, COVID) recur across many of them. To stop
+// replays feeling like the same run, each new game jumps at least a third of
+// the timeline away from the previous start, landing in a clearly different
+// stretch of history. (Session-scoped: a full page reload starts fresh.)
+let lastStart = -1;
+function pickStartIdx() {
+  const MIN_GAP = Math.round(N_WINDOWS / 3);
+  let idx = 0;
+  for (let t = 0; t < 50; t++) {
+    idx = Math.floor(Math.random() * N_WINDOWS);
+    if (lastStart < 0 || Math.abs(idx - lastStart) >= MIN_GAP) break;
+  }
+  lastStart = idx;
+  return idx;
+}
+
+function startGame() {
+  const startIdx = pickStartIdx();
+  resetGame(startIdx);
+
+  document.getElementById('start-screen').style.display   = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display    = 'block';
+
+  syncActionBtn();
+  syncProgress();
+  syncScores();
+  initCanvas('game-canvas');
+  drawGame();
+
+  document.getElementById('news-card').classList.remove('show');
+  updatePauseBtn();
+
+  animTimer = setInterval(tick, TICK_MS);
+}
+
+function playAgain() {
+  document.getElementById('results-screen').style.display = 'none';
+  startGame();
+}
+
+// ─────────────────────────────────────────────────────────────
+// 3. GAME LOOP
+// ─────────────────────────────────────────────────────────────
+function tick() {
+  if (G.gameOver) return;
+  advanceOne();
+  if (G.currentMonth >= TOTAL_MONTHS) endGame();
+}
+
+function advanceOne() {
+  G.currentMonth++;
+  const ret  = G.monthRets[G.currentMonth - 1];
+  const prev = G.playerVals[G.currentMonth - 1];
+  const ph   = G.holdVals[G.currentMonth - 1];
+
+  G.playerVals.push(G.invested ? prev * (1 + ret) : prev * (1 + CASH_RATE_MONTHLY));
+  G.holdVals.push(ph * (1 + ret));
+  G.investedHist.push(G.invested);
+
+  syncProgress();
+  syncScores();
+  drawGame();
+  maybeShowNews();
+}
+
+function endGame() {
+  if (animTimer) clearInterval(animTimer);
+  animTimer = null;
+  G.gameOver = true;
+  syncScores();
+  setTimeout(showResults, 450);
+}
+
+// ─────────────────────────────────────────────────────────────
+// 4. CONTROLS
+// ─────────────────────────────────────────────────────────────
+// A decision is made only at a news flash: 'act' flips the player's position
+// (sell if invested, buy if in cash) and logs a trade; 'hold' keeps the current
+// stance. Either way the run then resumes towards the next event.
+function newsDecision(choice) {
+  if (G.gameOver) return;
+  if (choice === 'act') {
+    G.invested = !G.invested;
+    const label = G.markerIdx < 26
+      ? String.fromCharCode(65 + G.markerIdx)
+      : String(G.markerIdx + 1);
+    G.markers.push({ month: G.currentMonth, label: label, invested: G.invested });
+    G.markerIdx++;
+    syncActionBtn();
+    drawGame();
+  }
+  dismissNews();
+}
+
+// ── Pause / resume ────────────────────────────────────────────
+function pauseGame() {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  G.paused = true;
+  updatePauseBtn();
+}
+
+function resumeGame() {
+  document.getElementById('news-card').classList.remove('show');
+  G.paused = false;
+  updatePauseBtn();
+  if (!G.gameOver && !animTimer) {
+    animTimer = setInterval(tick, TICK_MS);
+  }
+}
+
+function togglePause() {
+  if (G.gameOver) return;
+  if (G.paused) resumeGame(); else pauseGame();
+}
+
+function dismissNews() { resumeGame(); }
+
+function updatePauseBtn() {
+  const b = document.getElementById('btn-pause');
+  if (!b) return;
+  b.textContent = G.paused ? 'Resume' : 'Pause';
+  b.classList.toggle('active', G.paused);
+}
+
+// Surface a breaking-news card and pause the run when this month has an event,
+// so the player can decide. Skipped in the final month, where there's no
+// forward stretch left to act on.
+function maybeShowNews() {
+  if (G.gameOver) return;
+  if (G.currentMonth >= TOTAL_MONTHS) return;
+  const ev = NEWS[FTSE_DATES[G.startIdx + G.currentMonth]];
+  if (!ev) return;
+  const yr = Math.min(10, Math.floor(G.currentMonth / 12) + 1);
+  document.getElementById('news-when').textContent = 'Year ' + yr + ' of 10';
+  document.getElementById('news-text').textContent = ev.text;
+  document.getElementById('news-link').href = ev.url;
+
+  const actBtn  = document.getElementById('news-action-btn');
+  const holdBtn = document.getElementById('news-hold-btn');
+  if (G.invested) {
+    actBtn.textContent = 'Sell, move to cash';
+    actBtn.className   = 'news-btn act-sell';
+    holdBtn.textContent = 'Stay invested';
+  } else {
+    actBtn.textContent = 'Buy back in';
+    actBtn.className   = 'news-btn act-buy';
+    holdBtn.textContent = 'Stay in cash';
+  }
+  holdBtn.className = 'news-btn hold';
+
+  document.getElementById('news-card').classList.add('show');
+  pauseGame();
+  actBtn.focus();
+}
+
+// Keep the persistent status pill in sync with the player's position.
+function syncActionBtn() {
+  const pill = document.getElementById('pos-pill');
+  if (G.invested) {
+    pill.textContent = '● Invested';
+    pill.className   = 'pos-pill in';
+  } else {
+    pill.textContent = '● In cash';
+    pill.className   = 'pos-pill out';
+  }
+}
+
+// During play we DO NOT reveal the real calendar period — only elapsed time —
+// so players can't recognise (and exploit) the historical window.
+function syncProgress() {
+  const yr = Math.min(10, Math.floor(G.currentMonth / 12) + 1);
+  document.getElementById('game-period').textContent = 'Year ' + yr + ' of 10';
+}
+
+function syncScores() {
+  const p  = G.playerVals[G.currentMonth];
+  const h  = G.holdVals[G.currentMonth];
+  const pd = (p - 10000) / 10000;
+  const hd = (h - 10000) / 10000;
+
+  document.getElementById('p-val').textContent   = fmtGBP(p);
+  document.getElementById('h-val').textContent   = fmtGBP(h);
+  document.getElementById('p-delta').textContent = fmtPct(pd);
+  document.getElementById('h-delta').textContent = fmtPct(hd);
+
+  document.getElementById('p-delta').className = 'score-delta ' + deltaClass(pd);
+  document.getElementById('h-delta').className = 'score-delta ' + deltaClass(hd);
+}
+
+// ─────────────────────────────────────────────────────────────
+// 5. CHART RENDERING
+// ─────────────────────────────────────────────────────────────
+const PAD = { t: 22, r: 18, b: 42, l: 54 };
+let activeCanvas = null;
+let activeCss    = { w: 600, h: 300 };
+
+function initCanvas(id) {
+  activeCanvas = document.getElementById(id);
+  const dpr    = window.devicePixelRatio || 1;
+
+  const cssW = activeCanvas.parentElement.clientWidth - 26;
+  const cssH = 380;
+  activeCss  = { w: cssW, h: cssH };
+
+  activeCanvas.style.width  = cssW + 'px';
+  activeCanvas.style.height = cssH + 'px';
+  activeCanvas.width        = cssW * dpr;
+  activeCanvas.height       = cssH * dpr;
+
+  activeCanvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function getCtx() { return activeCanvas ? activeCanvas.getContext('2d') : null; }
+
+function dataRange(includeHold) {
+  const pVals = G.playerVals.map(v => (v / 10000 - 1) * 100);
+  const all   = includeHold
+    ? [...pVals, ...G.holdVals.map(v => (v / 10000 - 1) * 100)]
+    : pVals;
+
+  let lo = Math.min(...all, 0);
+  let hi = Math.max(...all, 0);
+
+  // Anchor to the pre-computed full-window buy & hold range so the scale holds
+  // steady through the run; it only ever widens if the player's line pushes past
+  // it, and never contracts frame-to-frame.
+  if (G.baseLo !== undefined) {
+    lo = Math.min(lo, G.baseLo);
+    hi = Math.max(hi, G.baseHi);
+  }
+
+  const span = hi - lo || 10;
+  lo -= span * 0.08;
+  hi += span * 0.12;
+
+  const step = niceStep(hi - lo);
+  lo = Math.floor(lo / step) * step;
+  hi = Math.ceil(hi / step) * step;
+  return { lo, hi, step };
+}
+
+function niceStep(span) {
+  for (const s of [5, 10, 20, 25, 50, 100, 200]) {
+    if (span / s <= 9) return s;
+  }
+  return 200;
+}
+
+function mToX(m) {
+  const { w } = activeCss;
+  return PAD.l + (m / TOTAL_MONTHS) * (w - PAD.l - PAD.r);
+}
+
+function pToY(pct, lo, hi) {
+  const { h } = activeCss;
+  const chartH = h - PAD.t - PAD.b;
+  return PAD.t + (1 - (pct - lo) / (hi - lo)) * chartH;
+}
+
+function drawChart() {
+  const ctx = getCtx();
+  if (!ctx) return;
+
+  const { w, h } = activeCss;
+  ctx.clearRect(0, 0, w, h);
+
+  const { lo, hi, step } = dataRange(true);
+
+  // ── Results-only: shade the stretches spent on the sidelines (green = a
+  //    fall you dodged, red = a rally you missed) and flag the news events you
+  //    lived through — this is what turns the end screen into a "why" view.
+  if (G.gameOver && G.investedHist && G.investedHist.length) {
+    const topY = PAD.t, botY = h - PAD.b;
+    let j = 0;
+    while (j < G.investedHist.length) {
+      if (!G.investedHist[j]) {
+        let k = j, mkt = 1;
+        while (k < G.investedHist.length && !G.investedHist[k]) {
+          mkt *= (1 + G.monthRets[k]);
+          k++;
+        }
+        const x1 = mToX(j), x2 = mToX(k);
+        const rose = mkt > 1;
+        ctx.fillStyle = rose ? 'rgba(201,46,68,0.10)' : 'rgba(46,155,94,0.14)';
+        ctx.fillRect(x1, topY, x2 - x1, botY - topY);
+        if (x2 - x1 > 36) {
+          const pct = Math.round((mkt - 1) * 100);
+          ctx.font      = 'bold 11px Montserrat, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = rose ? '#b3243b' : '#1f7a44';
+          ctx.fillText(rose ? ('missed +' + pct + '%') : ('dodged ' + pct + '%'), (x1 + x2) / 2, topY + 11);
+        }
+        j = k;
+      } else {
+        j++;
+      }
+    }
+    for (let m = 0; m <= TOTAL_MONTHS; m++) {
+      if (NEWS[FTSE_DATES[G.startIdx + m]]) {
+        const x = mToX(m);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(48,65,93,0.35)';
+        ctx.lineWidth   = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x, topY);
+        ctx.lineTo(x, botY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#30415d';
+        ctx.beginPath();
+        ctx.arc(x, topY, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  // ── Grid & Y-axis labels
+  ctx.font = '13px Montserrat, sans-serif';
+  ctx.textAlign = 'right';
+  for (let p = lo; p <= hi + 0.001; p += step) {
+    const y = pToY(p, lo, hi);
+    ctx.strokeStyle = p === 0 ? '#30415d' : '#eaecf0';
+    ctx.lineWidth   = p === 0 ? 1.5 : 1;
+    ctx.beginPath();
+    ctx.moveTo(PAD.l, y);
+    ctx.lineTo(w - PAD.r, y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#5f6b7a';
+    ctx.fillText(Math.round(p) + '%', PAD.l - 5, y + 3.5);
+  }
+
+  // ── X-axis ticks & labels (relative years 0–10)
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#5f6b7a';
+  for (let yr = 0; yr <= 10; yr += 2) {
+    const x = mToX(yr * 12);
+    ctx.strokeStyle = '#eaecf0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, h - PAD.b);
+    ctx.lineTo(x, h - PAD.b + 4);
+    ctx.stroke();
+    ctx.fillText(yr, x, h - PAD.b + 16);
+  }
+
+  ctx.fillStyle = '#5f6b7a';
+  ctx.font = '13px Montserrat, sans-serif';
+  ctx.fillText('Year', PAD.l + (w - PAD.l - PAD.r) / 2, h - PAD.b + 32);
+
+  ctx.save();
+  ctx.translate(13, PAD.t + (h - PAD.t - PAD.b) / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('% Gain', 0, 0);
+  ctx.restore();
+
+  const n = G.playerVals.length;
+  if (n < 2) return;
+
+  const zeroY = pToY(0, lo, hi);
+
+  // ── Buy & hold line (always shown — live during play). Rendered a shade
+  //    deeper than the brand light blue so a 2px line stays visible on white.
+  ctx.save();
+  ctx.strokeStyle = '#6f8fbf';
+  ctx.lineWidth   = 2;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  G.holdVals.forEach((v, m) => {
+    const x = mToX(m);
+    const y = pToY((v / 10000 - 1) * 100, lo, hi);
+    m === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // ── Player filled area
+  const firstX = mToX(0);
+  const lastX  = mToX(n - 1);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(firstX, zeroY);
+  G.playerVals.forEach((v, m) => {
+    ctx.lineTo(mToX(m), pToY((v / 10000 - 1) * 100, lo, hi));
+  });
+  ctx.lineTo(lastX, zeroY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(48,65,93,0.10)';
+  ctx.fill();
+  ctx.restore();
+
+  // ── Player line
+  ctx.save();
+  ctx.strokeStyle = '#30415d';
+  ctx.lineWidth   = 2;
+  ctx.lineJoin    = 'round';
+  ctx.beginPath();
+  G.playerVals.forEach((v, m) => {
+    const x = mToX(m);
+    const y = pToY((v / 10000 - 1) * 100, lo, hi);
+    m === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Trade markers — accent-red dot with a white ring so each decision point
+  //    stands out against the navy line; label sits just above in navy.
+  ctx.font      = 'bold 12px Montserrat, sans-serif';
+  ctx.textAlign = 'center';
+  G.markers.forEach(mk => {
+    const x  = mToX(mk.month);
+    const pv = G.playerVals[mk.month];
+    const y  = pToY((pv / 10000 - 1) * 100, lo, hi);
+
+    ctx.textAlign = mk.month === 0 ? 'left' : 'center';
+    ctx.fillStyle = '#30415d';
+    ctx.fillText(mk.label, mk.month === 0 ? x + 4 : x, y - 9);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle   = '#e93a55';
+    ctx.fill();
+    ctx.lineWidth   = 1.5;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+  });
+  ctx.textAlign = 'center';
+
+  // ── Live tip dot (during play only) — the head of your line
+  if (!G.gameOver) {
+    const tipV = G.playerVals[n - 1];
+    const tx = mToX(n - 1);
+    const ty = pToY((tipV / 10000 - 1) * 100, lo, hi);
+    ctx.beginPath();
+    ctx.arc(tx, ty, 4, 0, Math.PI * 2);
+    ctx.fillStyle   = '#30415d';
+    ctx.fill();
+    ctx.lineWidth   = 1.5;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+  }
+}
+
+function drawGame()    { drawChart(); }
+function drawResults() { drawChart(); }
+
+// ─────────────────────────────────────────────────────────────
+// 6. RESULTS SCREEN
+// ─────────────────────────────────────────────────────────────
+function showResults() {
+  document.getElementById('game-screen').style.display    = 'none';
+  document.getElementById('results-screen').style.display = 'block';
+
+  const pFinal = G.playerVals[TOTAL_MONTHS];
+  const hFinal = G.holdVals[TOTAL_MONTHS];
+  const diff   = pFinal - hFinal;
+
+  // Best / worst possible outcomes under the same rules. Because switching is
+  // free and each month is independent, the optimum is simply: be invested every
+  // up-month and in cash every down-month (and the mirror image for the worst).
+  let bestPossible = 10000, worstPossible = 10000;
+  const cashStep = 1 + CASH_RATE_MONTHLY;
+  for (let k = 0; k < TOTAL_MONTHS; k++) {
+    const mkt = 1 + G.monthRets[k];
+    bestPossible  *= Math.max(mkt, cashStep);
+    worstPossible *= Math.min(mkt, cashStep);
+  }
+
+  // How many of the market's best months did the player sit out — and how many
+  // of those landed within a month or two of its worst (the classic trap)?
+  const order       = G.monthRets.map((r, i) => i).sort((a, b) => G.monthRets[b] - G.monthRets[a]);
+  const TOPN        = 5;
+  const bestMonths  = order.slice(0, TOPN);
+  const worstMonths = order.slice(-TOPN);
+  let missedBest = 0;
+  bestMonths.forEach(i => { if (G.investedHist && !G.investedHist[i]) missedBest++; });
+  let clusteredAfterCrash = 0;
+  bestMonths.forEach(b => {
+    if (worstMonths.some(w => (b - w) >= 1 && (b - w) <= 2)) clusteredAfterCrash++;
+  });
+
+  // (Per-event detail now lives in the decision report card below.)
+
+  let outcome;                       // 'win' | 'lose' | 'tie'
+  if (diff > 0.5)       outcome = 'win';
+  else if (diff < -0.5) outcome = 'lose';
+  else                  outcome = 'tie';
+
+  const banner  = document.getElementById('r-banner');
+  const verdict = document.getElementById('r-verdict');
+  banner.className = 'result-banner ' + outcome;
+  verdict.textContent =
+      outcome === 'win'  ? 'You BEAT the market!' :
+      outcome === 'lose' ? 'You did NOT beat the market.' :
+                           'You matched the market.';
+
+  const pAnn = annualised(pFinal, 10000, 10);
+  const hAnn = annualised(hFinal, 10000, 10);
+  const dAnn = pAnn - hAnn;
+
+  const sDate = fmtMonthYear(FTSE_DATES[G.startIdx]);
+  const eDate = fmtMonthYear(FTSE_DATES[G.startIdx + TOTAL_MONTHS]);
+  const trades = G.markers.length;
+
+  let line3;
+  if (outcome === 'win')
+    line3 = `You <strong style="color:#1a6640">beat the market by ${fmtGBP(Math.abs(diff))}</strong>.`;
+  else if (outcome === 'lose')
+    line3 = `You <strong style="color:#c92e44">fell short of the market by ${fmtGBP(Math.abs(diff))}</strong>.`;
+  else
+    line3 = `You <strong>finished level with the market</strong>${trades === 0 ? ' because you stayed fully invested the whole time' : ''}.`;
+
+  // Colour the headline values: the higher final pot reads green, the lower
+  // reads red, a dead heat stays neutral navy. Same idea for the annualised gap.
+  const youHigher = pFinal > hFinal + 0.5;
+  const bahHigher = hFinal > pFinal + 0.5;
+  const youColor = youHigher ? '#1a6640' : (bahHigher ? '#c92e44' : '#30415d');
+  const bahColor = bahHigher ? '#1a6640' : (youHigher ? '#c92e44' : '#30415d');
+  const dColor   = dAnn > 0.00005 ? '#1a6640' : (dAnn < -0.00005 ? '#c92e44' : '#5f6b7a');
+
+  document.getElementById('r-stats').innerHTML = `
+    <p>You played the FTSE&nbsp;100 from <strong>${sDate}</strong> to <strong>${eDate}</strong>, making <strong>${trades} ${trades === 1 ? 'trade' : 'trades'}</strong>.</p>
+    <p>Your investment grew to <strong style="color:${youColor}">${fmtGBP(pFinal)}</strong> while the buy &amp; hold strategy reached <strong style="color:${bahColor}">${fmtGBP(hFinal)}</strong>.</p>
+    <p>${line3}</p>
+    <p>Annualised: the market grew <strong>${(hAnn*100).toFixed(1)}% per year</strong>; your portfolio grew <strong>${(pAnn*100).toFixed(1)}% per year</strong>, a difference of <strong style="color:${dColor}">${dAnn>=0?'+':''}${(dAnn*100).toFixed(2)}% per year</strong>.</p>
+    <p>For perspective: with <strong>perfect</strong> timing you could have reached <strong>${fmtGBP(bestPossible)}</strong>, while the <strong>worst</strong> timing would have left you with <strong>${fmtGBP(worstPossible)}</strong>. But catching every up-month and dodging every down-month is something no real investor has ever managed.</p>
+    ${missedBest > 0 ? `<p>You were on the sidelines for <strong>${missedBest} of the market's ${TOPN} best months</strong>${clusteredAfterCrash > 0 ? `, and ${clusteredAfterCrash} of those struck right after its scariest falls, exactly when staying out feels safest` : ''}.</p>` : ''}
+  `;
+
+  buildReport();
+
+  initCanvas('results-canvas');
+  drawResults();
+}
+
+// Walk the news events the player faced and, for each, report the call they
+// made and how the market then moved — from that headline until the next one
+// (or the finish). A decision at an event governs the months that follow it.
+function buildReport() {
+  const eventMonths = [];
+  for (let m = 1; m < TOTAL_MONTHS; m++) {
+    if (NEWS[FTSE_DATES[G.startIdx + m]]) eventMonths.push(m);
+  }
+
+  const box = document.getElementById('r-report');
+  if (eventMonths.length === 0) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+
+  let rows = '';
+  eventMonths.forEach((m, idx) => {
+    const ev     = NEWS[FTSE_DATES[G.startIdx + m]];
+    const before = G.investedHist[m - 1];   // stance going into the headline
+    const after  = G.investedHist[m];        // stance for the months that follow
+    const acted  = before !== after;
+
+    let action;
+    if (acted) action = after ? 'You bought back in.' : 'You sold.';
+    else       action = after ? 'You stayed invested.' : 'You stayed in cash.';
+
+    // Market move from this event until the next one (or the finish).
+    const mEnd = (idx + 1 < eventMonths.length) ? eventMonths[idx + 1] : TOTAL_MONTHS;
+    let mkt = 1;
+    for (let k = m; k < mEnd; k++) mkt *= (1 + G.monthRets[k]);
+    const segRet  = mkt - 1;
+    const months  = mEnd - m;
+    const cashRet = Math.pow(1 + CASH_RATE_MONTHLY, months) - 1;
+
+    // What the player's choice was worth versus the other option, in pounds.
+    const potAtM        = G.playerVals[m];
+    const playerOutcome = after ? segRet  : cashRet;
+    const altOutcome    = after ? cashRet : segRet;
+    const swingGBP      = potAtM * (playerOutcome - altOutcome);
+
+    const pct = Math.round(Math.abs(segRet) * 100);
+    const gbp = fmtGBP(Math.abs(swingGBP));
+
+    let cls, glyph, verdict;
+    if (Math.abs(segRet) < 0.005) {
+      cls = 'neutral'; glyph = '•';
+      verdict = 'Markets were roughly flat until the next event.';
+    } else if (after && segRet > 0) {
+      cls = 'good'; glyph = '✓';
+      verdict = `A +${pct}% climb followed${swingGBP >= 1 ? `, worth about ${gbp}` : ''}.`;
+    } else if (after && segRet < 0) {
+      cls = 'bad'; glyph = '✗';
+      verdict = `A ${pct}% fall followed${swingGBP <= -1 ? `, costing about ${gbp}` : ''}.`;
+    } else if (!after && segRet < 0) {
+      cls = 'good'; glyph = '✓';
+      verdict = `A ${pct}% fall followed${swingGBP >= 1 ? `, saving about ${gbp}` : ''}.`;
+    } else {
+      cls = 'bad'; glyph = '✗';
+      verdict = `A +${pct}% climb followed${swingGBP <= -1 ? `, giving up about ${gbp}` : ''}.`;
+    }
+
+    const dateTxt = fmtMonthYear(FTSE_DATES[G.startIdx + m]);
+    rows += `
+      <div class="report-row">
+        <div class="report-when"><strong>${ev.tag}</strong> <span class="rdate">· ${dateTxt}</span></div>
+        <div class="report-line">${action} <span class="report-verdict ${cls}">${glyph} ${verdict}</span></div>
+        <a class="report-link" href="${ev.url}" target="_blank" rel="noopener noreferrer">Read on BBC →</a>
+      </div>`;
+  });
+
+  box.innerHTML =
+    '<h3>Your decisions, one by one</h3>' +
+    '<p class="report-lead">Each time the news broke, here\'s the call you made and how the market moved over the months that followed, up to the next headline.</p>' +
+    rows;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 7. HELPERS
+// ─────────────────────────────────────────────────────────────
+function fmtGBP(v) {
+  return '£' + Math.round(v).toLocaleString('en-GB');
+}
+
+function fmtPct(v) {
+  if (Math.abs(v) < 0.00005) return '—';
+  return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+}
+
+function deltaClass(v) {
+  if (v > 0.00005)  return 'delta-pos';
+  if (v < -0.00005) return 'delta-neg';
+  return 'delta-neu';
+}
+
+function annualised(end, start, years) {
+  return Math.pow(end / start, 1 / years) - 1;
+}
+
+// Resize handler
+window.addEventListener('resize', () => {
+  if (!activeCanvas) return;
+  const id = activeCanvas.id;
+  initCanvas(id);
+  if (id === 'game-canvas')    drawGame();
+  if (id === 'results-canvas') drawResults();
+});
+</script>
+</body>
+</html>
